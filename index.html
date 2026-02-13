@@ -328,22 +328,23 @@
                 const box = reelBoxes[index];
 
                 box.classList.add('active-reel');
-                
-                // 每次啟動前先瞬間重置到頂端
+
                 container.style.transition = 'none';
                 container.style.transform = `translateY(0px)`;
-                container.offsetHeight; 
+                container.offsetHeight;
 
-                // 滾動距離
-                const offset = ((REEL_DIGITS_COUNT - 10) + targetDigit) * -DIGIT_HEIGHT;
-                const duration = 1.5; 
+                const digitHeight = container.querySelector('.digit').offsetHeight;
+
+                const offset = ((REEL_DIGITS_COUNT - 10) + targetDigit) * -digitHeight;
+                const duration = 1.5;
+
                 container.style.transition = `transform ${duration}s cubic-bezier(0.15, 0, 0.15, 1)`;
                 container.style.transform = `translateY(${offset}px)`;
 
                 setTimeout(() => {
                     box.classList.remove('active-reel');
                     resolve(targetDigit);
-                }, duration * 1000 + 50); 
+                }, duration * 1000 + 50);
             });
         }
 
