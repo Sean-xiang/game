@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧨 新春數字開運轉盤 - 自由重複開獎版 🧨</title>
+    <style>
+        :root {
+            --red: #d32f2f;
+            --gold: #ffd700;
+            --dark-red: #8b0000;
+            --text-gold: #fff1a8;
+        }
+
+        body {
+            background-color: var(--dark-red);
+            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--gold);
+            overflow-x: hidden;
+            transition: background-color 0.5s;
+        }
+
+        .winner-bg {
+            background-color: #ff4500 !important;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { background-color: #8b0000; }
+            to { background-color: #d32f2f; }
+        }
+
+        h1 { 
+            margin: 10px 0; 
+            font-size: 2.2rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            letter-spacing: 4px;
+        }
+
+        .machine-container {
+            position: relative;
+            background: linear-gradient(145deg, var(--red), var(--dark-red));
+            padding: 30px;
+            border: 8px solid var(--gold);
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            margin-bottom: 30px;
+        }
+
+        .slot-machine {
+            display: flex;
+            gap: 15px;
+        }
+
+        .reel-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reel-label {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--text-gold);
+        }
+
+        .reel {
+            width: 85px;
+            height: 120px;
+            background: #fff;
+            border: 4px solid #444;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .digit-container {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .digit {
+            height: 120px;
+            font-size: 80px;
+            font-weight: 900;
+            color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
+
+        .active-reel {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px var(--gold);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .spin-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-draw {
+            padding: 10px 15px;
+            font-size: 16px;
+            background: linear-gradient(to bottom, #fff7ad, var(--gold));
+            color: var(--dark-red);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px #b8860b;
+            transition: all 0.1s;
+        }
+
+        .btn-draw:hover:not(:disabled) { transform: scale(1.05); }
+        .btn-draw:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px #b8860b; }
+        .btn-draw:disabled { background: #888; color: #444; box-shadow: none; cursor: not-allowed; opacity: 0.5; }
+
+        #reset-btn {
+            padding: 8px 25px;
+            background: transparent;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .result-panel { min-height: 80px; text-align: center; }
+        #result-text { font-size: 1.8rem; font-weight: bold; color: var(--text-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+
+        /* 機率調整區域 */
+        .settings {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+        }
+
+        .settings h3 { margin-top: 0; color: var(--gold); text-align: center; }
+
+        .prob-columns {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .prob-column {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .prob-column-title {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .prob-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .prob-row label { font-size: 0.85rem; width: 20px; }
+        .prob-row input {
+            width: 45px;
+            padding: 3px;
+            border-radius: 4px;
+            border: 1px solid var(--gold);
+            background: #111;
+            color: var(--gold);
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .lantern { position: absolute; font-size: 30px; top: -15px; }
+        .lantern-l { left: -20px; }
+        .lantern-r { right: -20px; }
+
+        @media (max-width: 600px) {
+            .prob-columns { grid-template-columns: repeat(2, 1fr); }
+            .slot-machine { gap: 8px; }
+            .reel { width: 65px; height: 100px; }
+            .digit { height: 100px; font-size: 60px; }
+            .spin-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧧 新春好運數字開獎 🧧</h1>
+
+    <div class="machine-container">
+        <span class="lantern lantern-l">🏮</span>
+        <span class="lantern lantern-r">🏮</span>
+        
+        <div class="slot-machine">
+            <div class="reel-box">
+                <div class="reel-label">千位</div>
+                <div class="reel" id="reel-container-0"><div class="digit-container" id="reel-0"></div></div>
+            </div>
+            <div class="reel-box">
+                <div class="reel-label">百位</div>
+                <div class="reel" id="reel-container-1"><div class="digit-container" id="reel-1"></div></div>
+            </div>
+            <div class="reel-box">
+                <div class="reel-label">十位</div>
+                <div class="reel" id="reel-container-2"><div class="digit-container" id="reel-2"></div></div>
+            </div>
+            <div class="reel-box">
+                <div class="reel-label">個位</div>
+                <div class="reel" id="reel-container-3"><div class="digit-container" id="reel-3"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="spin-buttons">
+            <button class="btn-draw" id="btn-0" onclick="handleDraw(0)">千位</button>
+            <button class="btn-draw" id="btn-1" onclick="handleDraw(1)">百位</button>
+            <button class="btn-draw" id="btn-2" onclick="handleDraw(2)">十位</button>
+            <button class="btn-draw" id="btn-3" onclick="handleDraw(3)">個位</button>
+        </div>
+        
+        <div class="result-panel">
+            <div id="result-text">點擊上方按鈕，隨時開始/重抽開獎</div>
+        </div>
+
+        <button id="reset-btn" onclick="resetGame()">全部重置</button>
+    </div>
+
+    <div class="settings">
+        <h3>⚙️ 各欄位機率獨立配置 (權重)</h3>
+        <div class="prob-columns" id="prob-settings-root">
+            <!-- 這裡會生成四個欄位的權重輸入框 -->
+        </div>
+    </div>
+
+    <script>
+        const REEL_DIGITS_COUNT = 50; 
+        const DIGIT_HEIGHT = 120;
+        const labels = ["千位", "百位", "十位", "個位"];
+        const reelContainers = [0, 1, 2, 3].map(i => document.getElementById(`reel-${i}`));
+        const reelBoxes = [0, 1, 2, 3].map(i => document.getElementById(`reel-container-${i}`));
+        const resultText = document.getElementById('result-text');
+        
+        let finalNumbers = [null, null, null, null];
+        let activeSpins = [false, false, false, false];
+
+        function init() {
+            const root = document.getElementById('prob-settings-root');
+            root.innerHTML = ''; 
+            
+            for (let col = 0; col < 4; col++) {
+                // 初始化捲軸 HTML
+                let digitsHTML = '';
+                for (let i = 0; i < REEL_DIGITS_COUNT; i++) {
+                    digitsHTML += `<div class="digit">${i % 10}</div>`;
+                }
+                reelContainers[col].innerHTML = digitsHTML;
+
+                // 初始化機率設定介面
+                let colHTML = `<div class="prob-column">
+                                <div class="prob-column-title">${labels[col]}</div>`;
+                for (let num = 0; num < 10; num++) {
+                    colHTML += `
+                        <div class="prob-row">
+                            <label>${num}</label>
+                            <input type="number" class="w-input" data-col="${col}" data-num="${num}" value="1" min="0">
+                        </div>
+                    `;
+                }
+                colHTML += `</div>`;
+                root.innerHTML += colHTML;
+            }
+        }
+
+        function getWeightedRandom(colIndex) {
+            const inputs = document.querySelectorAll(`.w-input[data-col="${colIndex}"]`);
+            const weights = Array.from(inputs).map(input => parseFloat(input.value) || 0);
+            const totalWeight = weights.reduce((a, b) => a + b, 0);
+            
+            if (totalWeight <= 0) return Math.floor(Math.random() * 10);
+
+            let random = Math.random() * totalWeight;
+            for (let i = 0; i < weights.length; i++) {
+                if (random < weights[i]) return i;
+                random -= weights[i];
+            }
+            return 0;
+        }
+
+        function spinSingleReel(index, targetDigit) {
+            return new Promise((resolve) => {
+                const container = reelContainers[index];
+                const box = reelBoxes[index];
+
+                box.classList.add('active-reel');
+                
+                // 每次啟動前先瞬間重置到頂端
+                container.style.transition = 'none';
+                container.style.transform = `translateY(0px)`;
+                container.offsetHeight; 
+
+                // 滾動距離
+                const offset = ((REEL_DIGITS_COUNT - 10) + targetDigit) * -DIGIT_HEIGHT;
+                const duration = 1.5; 
+                container.style.transition = `transform ${duration}s cubic-bezier(0.15, 0, 0.15, 1)`;
+                container.style.transform = `translateY(${offset}px)`;
+
+                setTimeout(() => {
+                    box.classList.remove('active-reel');
+                    resolve(targetDigit);
+                }, duration * 1000 + 50); 
+            });
+        }
+
+        async function handleDraw(index) {
+            if (activeSpins[index]) return; // 如果這格正在轉，不重複觸發
+            
+            activeSpins[index] = true;
+            document.getElementById(`btn-${index}`).disabled = true;
+            
+            resultText.innerText = `正在為${labels[index]}開獎...`;
+            
+            const target = getWeightedRandom(index);
+            await spinSingleReel(index, target);
+            
+            finalNumbers[index] = target;
+            activeSpins[index] = false;
+            document.getElementById(`btn-${index}`).disabled = false; // 轉完後恢復可點擊
+
+            updateResultDisplay();
+
+            // 如果四格都開過了，檢查有沒有特殊號碼
+            if (finalNumbers.every(n => n !== null)) {
+                const resultString = finalNumbers.join('');
+                if (["5200", "1314", "0520", "2026"].includes(resultString)) {
+                    document.body.classList.add('winner-bg');
+                } else {
+                    document.body.classList.remove('winner-bg');
+                }
+            }
+        }
+
+        function updateResultDisplay() {
+            let displayStr = finalNumbers.map(n => n === null ? "?" : n).join(" ");
+            resultText.innerHTML = `目前組合：<span style="color:#fff; letter-spacing: 5px; font-size: 2.5rem;">${displayStr}</span>`;
+        }
+
+        function resetGame() {
+            finalNumbers = [null, null, null, null];
+            activeSpins = [false, false, false, false];
+            document.body.classList.remove('winner-bg');
+            document.querySelectorAll('.btn-draw').forEach(b => b.disabled = false);
+            
+            reelContainers.forEach(container => {
+                container.style.transition = 'none';
+                container.style.transform = `translateY(0px)`;
+            });
+            
+            resultText.innerText = "點擊上方按鈕，隨時開始/重抽開獎";
+        }
+
+        init();
+    </script>
+</body>
+</html>
